@@ -162,26 +162,49 @@ TEST_F(CommerceTest, shouldGenerateIsbn13)
 
 TEST_F(CommerceTest, shouldGenerateIsbn10)
 {
-    const auto generatedIsbn10 = ISBN10();
+    std::string generatedIsbn10;
+
+    for (int i = 0; i < 1000; i++)
+    {
+        generatedIsbn10 = ISBN10();
+        if (generatedIsbn10[9] != 'X')
+            break;
+    }
+
+    ASSERT_TRUE(generatedIsbn10[9] != 'X');
 
     int sum = 0, weight = 10;
-    if (generatedIsbn10[9] == 'X')
+
+    for (size_t i = 0; i < 10; i++)
     {
-        for (size_t i = 0; i < 9; i++)
-        {
-            sum += (generatedIsbn10[i] - '0') * weight;
-            weight--;
-        }
-        sum += 10;
+        sum += (generatedIsbn10[i] - '0') * weight;
+        weight--;
     }
-    else
+
+    ASSERT_EQ(generatedIsbn10.size(), 10);
+    ASSERT_TRUE(sum % 11 == 0);
+}
+
+TEST_F(CommerceTest, shouldGenerateIsbn10WithXCheckDigit)
+{
+    std::string generatedIsbn10;
+
+    for (int i = 0; i < 1000; i++)
     {
-        for (size_t i = 0; i < 10; i++)
-        {
-            sum += (generatedIsbn10[i] - '0') * weight;
-            weight--;
-        }
+        generatedIsbn10 = ISBN10();
+        if (generatedIsbn10[9] == 'X')
+            break;
     }
+
+    ASSERT_TRUE(generatedIsbn10[9] == 'X');
+
+    int sum = 0, weight = 10;
+    for (size_t i = 0; i < 9; i++)
+    {
+        sum += (generatedIsbn10[i] - '0') * weight;
+        weight--;
+    }
+    sum += 10;
 
     ASSERT_EQ(generatedIsbn10.size(), 10);
     ASSERT_TRUE(sum % 11 == 0);

@@ -608,6 +608,30 @@ TEST_F(LocationTest, shouldGenerateNearbyGPSCoordinateWithOriginInMiles)
     ASSERT_LE(distanceMiles, 10.0);
 }
 
+TEST_F(LocationTest, shouldGenerateNearbyGPSCoordinateWithOriginInKilometerAdjustLatitude)
+{
+    constexpr std::tuple origin{89, 0};
+    const auto generatedNearbyGPSCoordinate = nearbyGPSCoordinate(Precision::ThreeDp, origin, 20000, true);
+
+    auto offset = std::get<0>(generatedNearbyGPSCoordinate).size();
+    const auto latitudeAsFloat = std::stod(std::get<0>(generatedNearbyGPSCoordinate), &offset);
+
+    offset = std::get<1>(generatedNearbyGPSCoordinate).size();
+    const auto longitudeAsFloat = std::stod(std::get<1>(generatedNearbyGPSCoordinate), &offset);
+
+    const auto generatedLatitudeParts = common::split(std::get<0>(generatedNearbyGPSCoordinate), ".");
+    const auto generatedLongitudeParts = common::split(std::get<1>(generatedNearbyGPSCoordinate), ".");
+
+    ASSERT_EQ(generatedLatitudeParts.size(), 2);
+    ASSERT_EQ(generatedLatitudeParts[1].size(), 3);
+    ASSERT_EQ(generatedLongitudeParts.size(), 2);
+    ASSERT_EQ(generatedLongitudeParts[1].size(), 3);
+
+    const auto distance = haversine(std::get<0>(origin), std::get<1>(origin), latitudeAsFloat, longitudeAsFloat);
+
+    ASSERT_LE(distance, 20000.0);
+}
+
 TEST_F(LocationTest, shouldGenerateDirection)
 {
     const auto generatedDirection = direction();
